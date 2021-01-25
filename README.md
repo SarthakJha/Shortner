@@ -12,6 +12,8 @@ _Running with **Docker** requires no pre-requisite software installation except 
 2. Run `docker-compose build`. It will build the go application create a docker image for it
 3. Run `docker-compose up` to start the application
 
+_Since multi-stage build has been implemented in the Dockerfile, final docker image that is run is super-lightwieght (<30 Mb)!_
+
 ## To Start the server locally:
 
 1.  Clone the repository
