@@ -1,6 +1,5 @@
 # Shortner
 
-<<<<<<< HEAD
 
 # **URL shortner** api written in **Golang** which uses **Redis** for caching and **MongoDB** for persitance.
 
