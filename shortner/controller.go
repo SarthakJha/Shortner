@@ -2,6 +2,7 @@ package shortner
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -11,22 +12,13 @@ import (
 
 // CreateShortURL creates the short url
 func (mg *MongoConn) CreateShortURL(c *fiber.Ctx) error {
+	fmt.Println("entering db (redir)")
 	reqBody := URLRequest{}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	if err := c.BodyParser(&reqBody); err != nil {
 		cancel()
 		return c.Status(400).JSON(fiber.Map{
 			"error": err.Error(),
-		})
-	}
-
-	res := mg.Db.Collection(os.Getenv("COLLECTION_NAME")).FindOne(ctx, bson.D{
-		{Key: "short_id", Value: reqBody.Event},
-	})
-	if res.Err() == nil {
-		cancel()
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Event already exists! Try with different event",
 		})
 	}
 
@@ -43,6 +35,7 @@ func (mg *MongoConn) CreateShortURL(c *fiber.Ctx) error {
 	}
 	baseString := "http://localhost:3000/"
 	cancel()
+	fmt.Println("short url created")
 	return c.Status(201).JSON(fiber.Map{
 		"short_url": baseString + insDoc.ShortID,
 	})
@@ -50,6 +43,7 @@ func (mg *MongoConn) CreateShortURL(c *fiber.Ctx) error {
 
 // RedirectRequest redirects the request
 func (mg *MongoConn) RedirectRequest(c *fiber.Ctx) error {
+	fmt.Println("entering db(redirect)")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	id := c.Params("id")
 
@@ -62,14 +56,17 @@ func (mg *MongoConn) RedirectRequest(c *fiber.Ctx) error {
 			"error": "Invalid Route",
 		})
 	}
+
 	model := DecodeRequest{}
 	err := res.Decode(&model)
 	if err != nil {
 		cancel()
-		return c.Status(404).JSON(fiber.Map{
+		return c.Status(500).JSON(fiber.Map{
 			"error": "internal server error",
 		})
 	}
 	cancel()
-	return c.Redirect(model.URLMain)
+	fmt.Println("going next")
+	c.Locals("main", model.URLMain)
+	return c.Next()
 }

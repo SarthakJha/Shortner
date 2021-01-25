@@ -21,13 +21,23 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	redisClient, err := shortner.InitRedis()
+	defer func() {
+		err := redisClient.Client.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}()
 	app := fiber.New()
 	app.Use(func(c *fiber.Ctx) error {
-		fmt.Println(c.IP()) // 127.0.0.1 (ip of the client)
+		// fmt.Println(c.IP()) // 127.0.0.1 (ip of the client)
 		return c.Next()
 	})
-	app.Post("/", db.CreateShortURL)
-	app.Get("/:id", db.RedirectRequest)
+
+	app.Post("/api/create", db.ValidateRequest, redisClient.WriteCache, db.CreateShortURL)
+
+	app.Get("/:id", redisClient.CheckCache, db.RedirectRequest, redisClient.ReWriteCache)
+
 	app.All("*", func(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{
 			"error": "Route not found!",
