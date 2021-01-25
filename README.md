@@ -1,5 +1,5 @@
 # Shortner
-**URL shortner** api written in **Golang** which uses **Redis** for caching and **MongoDB** for persitance.
+**URL shortner** api written in **Golang** which uses **Redis** for caching and **MongoDB** for persitence.
 
 
 ## To Start the server locally:
