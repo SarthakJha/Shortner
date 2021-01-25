@@ -61,8 +61,8 @@ func (mg *MongoConn) RedirectRequest(c *fiber.Ctx) error {
 	err := res.Decode(&model)
 	if err != nil {
 		cancel()
-		return c.Status(500).JSON(fiber.Map{
-			"error": "internal server error",
+		return c.Status(400).JSON(fiber.Map{
+			"error": "error parsing body. recheck request body",
 		})
 	}
 	cancel()
