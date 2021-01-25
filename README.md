@@ -1,5 +1,9 @@
 # Shortner
 
+<<<<<<< HEAD
+
+# **URL shortner** api written in **Golang** which uses **Redis** for caching and **MongoDB** for persitance.
+
 **URL shortner** api written in **Golang** which uses **Redis** for caching and **MongoDB** for persitance.
 
 _Running with **Docker** requires no pre-requisite software installation except Docker!_
