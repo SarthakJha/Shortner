@@ -12,7 +12,7 @@ import (
 // CreateShortURL creates the short url
 func (mg *MongoConn) CreateShortURL(c *fiber.Ctx) error {
 	reqBody := URLRequest{}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	if err := c.BodyParser(&reqBody); err != nil {
 		cancel()
 		return c.Status(400).JSON(fiber.Map{
@@ -50,7 +50,7 @@ func (mg *MongoConn) CreateShortURL(c *fiber.Ctx) error {
 
 // RedirectRequest redirects the request
 func (mg *MongoConn) RedirectRequest(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	id := c.Params("id")
 
 	res := mg.Db.Collection(os.Getenv("COLLECTION_NAME")).FindOne(ctx, bson.D{
@@ -59,7 +59,7 @@ func (mg *MongoConn) RedirectRequest(c *fiber.Ctx) error {
 	if res.Err() != nil {
 		cancel()
 		return c.Status(404).JSON(fiber.Map{
-			"error": res.Err().Error(),
+			"error": "Invalid Route",
 		})
 	}
 	model := DecodeRequest{}

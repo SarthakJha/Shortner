@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/SarthakJha/shawty/shortner"
@@ -11,18 +13,33 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	if err := godotenv.Load(); err != nil {
 		log.Fatalln(err.Error())
 	}
 	db, err := shortner.SeedDb()
 	if err != nil {
-		panic(err.Error())
+		log.Fatalln(err)
 	}
 	app := fiber.New()
+	app.Use(func(c *fiber.Ctx) error {
+		fmt.Println(c.IP()) // 127.0.0.1 (ip of the client)
+		return c.Next()
+	})
 	app.Post("/", db.CreateShortURL)
 	app.Get("/:id", db.RedirectRequest)
-	defer db.Client.Disconnect(ctx)
+	app.All("*", func(c *fiber.Ctx) error {
+		return c.Status(404).JSON(fiber.Map{
+			"error": "Route not found!",
+		})
+	})
+	defer func() {
+		err := db.Client.Disconnect(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Println("Disconnected from mongo...")
+	}()
 	defer cancel()
-	log.Fatalln(app.Listen(":3000"))
+	log.Fatalln(app.Listen(":" + os.Getenv("PORT")))
 }
