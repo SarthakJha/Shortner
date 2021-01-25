@@ -1,6 +1,8 @@
 package shortner
 
 import (
+	"os"
+
 	"github.com/go-redis/redis/v8"
 )
 
@@ -12,7 +14,7 @@ type RedisClient struct {
 // InitRedis initialises redis client
 func InitRedis() (RedisClient, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: os.Getenv("REDIS_URI"),
 	})
 	redisClient := RedisClient{
 		Client: client,

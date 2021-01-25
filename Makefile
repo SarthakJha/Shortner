@@ -6,7 +6,7 @@ cross_build:
 build:
 	go install
 	cp env.example .env
-	go build -o bin/shorty
+	go build -o bin/shorty .
 
 run:
 	./bin/shorty
